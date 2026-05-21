@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSI Wealth Team Universe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; scroll-behavior: smooth; }
+        .node-connector-v { width: 2px; background: #cbd5e1; height: 24px; }
+        .transition-all { transition: all 0.2s ease-in-out; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .team-image-container { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .team-image-container img { object-fit: cover; width: 100%; height: 100%; border-radius: inherit; }
+        .node-card {
+            min-width: 180px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div id="app" class="p-4 md:p-8 max-w-[1600px] mx-auto">
+        
+        <!-- HEADER -->
+        <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-3 rounded-xl text-white shadow-indigo-200 shadow-lg">
+                    <i class="fas fa-network-wired fa-2x"></i>
+                </div>
+                <div>
+                    <h1 id="view-title" class="text-3xl font-black text-slate-800 tracking-tight">TSI Wealth Universe</h1>
+                    <p class="text-slate-500 font-medium">Strategic Team Architecture</p>
+                    <p id="sync-status" class="text-xs text-slate-400 font-semibold mt-1">Connecting to Firebase...</p>
+                </div>
+            </div>
+            <button onclick="showConfirmSave()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-xl shadow-indigo-100 transition-all transform hover:-translate-y-1 flex items-center gap-3">
+                <i class="fas fa-cloud-upload-alt"></i> Save Online
+            </button>
+        </header>
+
+        <!-- SEGMENT 1: UNIVERSE VIEW -->
+        <div id="segment-1" class="space-y-12">
+            <div class="flex flex-col items-center">
+                <div class="bg-slate-800 text-white p-6 rounded-2xl shadow-2xl text-center w-72 mb-10 border-4 border-slate-700 ring-4 ring-indigo-500/20">
+                    <div class="bg-indigo-500/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-university text-indigo-300"></i>
+                    </div>
+                    <h2 class="font-bold text-xl uppercase tracking-tight">TSI Wealth Planners</h2>
+                    <p class="text-[10px] text-indigo-300 uppercase tracking-[0.2em] mt-2 font-black">Top Tier Management</p>
+                </div>
+                
+                <div class="w-full">
+                    <div class="flex flex-col items-center">
+                        <div class="h-10 w-0.5 bg-slate-300"></div>
+                        <div class="h-0.5 w-full max-w-5xl bg-slate-300"></div>
+                        
+                        <div id="teams-grid" class="flex flex-wrap justify-center gap-8 mt-10">
+                            <!-- Injected via JavaScript -->
+                        </div>
+                        
+                        <button onclick="addTeam()" class="mt-12 border-2 border-dashed border-indigo-300 text-indigo-500 hover:bg-indigo-50 hover:border-indigo-500 px-10 py-4 rounded-2xl flex items-center gap-3 transition-all font-bold group">
+                            <i class="fas fa-plus-circle group-hover:rotate-90 transition-transform"></i>
+                            <span>Add New Team</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEGMENT 2: TEAM WORKSPACE (VERTICAL) -->
+        <div id="segment-2" class="hidden">
+            <button onclick="backToUniverse()" class="group text-slate-500 hover:text-indigo-600 font-bold flex items-center gap-2 mb-8 transition-colors">
+                <div class="bg-white p-2 rounded-lg shadow-sm group-hover:shadow-md transition-all">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                Back to Universe
+            </button>
+            
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+                <div>
+                    <span class="text-indigo-600 text-xs font-black uppercase tracking-widest">Active Team View</span>
+                    <h2 id="current-team-name" class="text-4xl font-black text-slate-800">Team Name</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-4">
+                    <button onclick="addSWM()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                        <i class="fas fa-user-plus mr-2"></i> Add SWM Branch
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto pb-20 custom-scrollbar">
+                <div class="min-w-max flex flex-col items-center">
+                    <div id="wmd-slot" class="mb-12"></div>
+                    <div id="hierarchy-container" class="flex items-start justify-center gap-16">
+                        <div id="swm-row" class="flex justify-center gap-16 relative"></div>
+                        <div id="direct-wm-row" class="flex flex-col items-center border-l-2 border-dashed border-indigo-200 pl-16"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-indigo-100 text-indigo-600 p-3 rounded-xl"><i class="fas fa-user-edit"></i></div>
+                <h3 class="text-2xl font-black text-slate-800" id="modal-title">Edit Entry</h3>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Name</label>
+                    <input type="text" id="modal-input" class="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:ring-0 outline-none font-semibold text-slate-700">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="closeModal()" class="flex-1 px-6 py-4 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl transition-all">Cancel</button>
+                    <button id="modal-save-btn" class="flex-1 px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:bg-indigo-700">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[110] p-4">
+        <div class="bg-white rounded-3xl p-10 w-full max-w-md shadow-2xl text-center">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fas fa-cloud-upload-alt fa-2x"></i></div>
+            <h3 class="text-2xl font-black text-slate-800 mb-2">Sync Changes?</h3>
+            <p class="text-slate-500 font-medium mb-8">This will save the latest organizational structure to Firebase Firestore.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="performSave()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl hover:bg-indigo-700">Confirm & Save Online</button>
+                <button onclick="closeConfirmModal()" class="w-full py-4 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE + APP SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // STEP 1:
+        // Replace this firebaseConfig with your own Firebase Web App config.
+        // Firebase Console > Project Settings > Your apps > Web app config.
+        const firebaseConfig = {
+            apiKey: "PASTE_YOUR_API_KEY_HERE",
+            authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "PASTE_YOUR_PROJECT_ID",
+            storageBucket: "PASTE_YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+            appId: "PASTE_YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // One shared online document for the whole organization chart.
+        const universeDocRef = doc(db, "tsi-universe", "main");
+
+        let universe = {
+            teams: [
+                {
+                    id: 'team-default',
+                    name: 'Team Alpha',
+                    wmd: { name: 'Director Smith' },
+                    directWMs: [],
+                    swms: [
+                        { 
+                            id: 'swm-init', 
+                            name: 'Manager Johnson', 
+                            wms: [{ id: 'wm-init', name: 'Agent Parker', children: [] }] 
+                        }
+                    ]
+                }
+            ]
+        };
+
+        let currentTeamId = null;
+        let isInitialLoadComplete = false;
+
+        function setSyncStatus(message, colorClass = "text-slate-400") {
+            const status = document.getElementById('sync-status');
+            status.className = `text-xs font-semibold mt-1 ${colorClass}`;
+            status.innerText = message;
+        }
+
+        async function loadUniverseFromFirebase() {
+            try {
+                setSyncStatus("Loading online data...", "text-indigo-500");
+                const snap = await getDoc(universeDocRef);
+
+                if (snap.exists() && snap.data().universe) {
+                    universe = snap.data().universe;
+                    setSyncStatus("Online data loaded.", "text-green-600");
+                } else {
+                    await saveUniverseToFirebase();
+                    setSyncStatus("No online data found. Default structure created online.", "text-amber-600");
+                }
+
+                isInitialLoadComplete = true;
+                renderUniverse();
+            } catch (error) {
+                console.error("Firebase load error:", error);
+                setSyncStatus("Firebase load failed. Check config and Firestore rules.", "text-rose-600");
+                renderUniverse();
+            }
+        }
+
+        async function saveUniverseToFirebase() {
+            try {
+                setSyncStatus("Saving online...", "text-indigo-500");
+                await setDoc(universeDocRef, {
+                    universe,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                setSyncStatus("Saved online successfully.", "text-green-600");
+            } catch (error) {
+                console.error("Firebase save error:", error);
+                setSyncStatus("Save failed. Check Firebase config and Firestore rules.", "text-rose-600");
+                alert("Save failed. Please check your Firebase config and Firestore rules.");
+            }
+        }
+
+        // Optional real-time sync: if another user saves changes, this page updates automatically.
+        onSnapshot(universeDocRef, (snap) => {
+            if (!isInitialLoadComplete) return;
+            if (snap.exists() && snap.data().universe) {
+                universe = snap.data().universe;
+                if (currentTeamId && !universe.teams.find(t => t.id === currentTeamId)) {
+                    currentTeamId = null;
+                    backToUniverse();
+                } else if (currentTeamId) {
+                    renderTeamDetail();
+                } else {
+                    renderUniverse();
+                }
+                setSyncStatus("Synced with latest online data.", "text-green-600");
+            }
+        }, (error) => {
+            console.error("Firebase realtime error:", error);
+            setSyncStatus("Real-time sync unavailable. Check Firebase rules.", "text-rose-600");
+        });
+
+        function getTeamCounts(team) {
+            let counts = { wmd: 0, swm: 0, wm: 0 };
+            if (team.wmd) counts.wmd++;
+            const countRecursive = (list) => {
+                let total = 0;
+                list.forEach(item => {
+                    total++;
+                    if (item.children) total += countRecursive(item.children);
+                });
+                return total;
+            };
+            if (team.directWMs) counts.wm += countRecursive(team.directWMs);
+            if (team.swms) {
+                counts.swm = team.swms.length;
+                team.swms.forEach(swm => {
+                    if (swm.wms) counts.wm += countRecursive(swm.wms);
+                });
+            }
+            return counts;
+        }
+
+        function renderUniverse() {
+            const grid = document.getElementById('teams-grid');
+            grid.innerHTML = universe.teams.map(team => {
+                const counts = getTeamCounts(team);
+                return `
+                    <div class="group relative">
+                        <div class="absolute -top-3 -right-3 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-all">
+                            <button onclick="event.stopPropagation(); editTeam('${team.id}')" class="bg-white text-amber-500 w-8 h-8 rounded-lg shadow-lg border border-slate-100"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="event.stopPropagation(); deleteTeam('${team.id}')" class="bg-white text-rose-500 w-8 h-8 rounded-lg shadow-lg border border-slate-100"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                        <div onclick="viewTeam('${team.id}')" class="cursor-pointer bg-white border-2 border-slate-100 hover:border-indigo-400 p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all w-64 text-center">
+                            <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4"><i class="fas fa-users text-indigo-500 text-xl"></i></div>
+                            <h3 class="font-black text-slate-700 truncate text-lg">${team.name}</h3>
+                            <div class="mt-4 py-2 border-y border-slate-50 flex flex-col items-center gap-1">
+                                <div class="text-[10px] font-bold text-amber-600 uppercase tracking-tighter">WMD: [${counts.wmd}]</div>
+                                <div class="text-[10px] font-bold text-indigo-600 uppercase tracking-tighter">SWM: [${counts.swm}]</div>
+                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">WM: [${counts.wm}]</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTeamDetail() {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            if (!team) return;
+            document.getElementById('current-team-name').innerText = team.name;
+
+            const wmdSlot = document.getElementById('wmd-slot');
+            wmdSlot.innerHTML = team.wmd ? `
+                <div class="flex flex-col items-center">
+                    <div class="group relative bg-slate-800 border-4 border-slate-700 p-6 rounded-2xl shadow-xl w-72 text-center text-white">
+                        <div class="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button onclick="editWMD()" class="bg-amber-400 text-white w-8 h-8 rounded-lg"><i class="fas fa-pen text-xs"></i></button>
+                            <button onclick="deleteWMD()" class="bg-rose-500 text-white w-8 h-8 rounded-lg"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                        <div class="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-1">Director (WMD)</div>
+                        <div class="font-black text-xl">${team.wmd.name}</div>
+                        <div class="mt-4 pt-4 border-t border-slate-600">
+                             <button onclick="addDirectWM()" class="text-[10px] bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-full transition-all">
+                                <i class="fas fa-plus mr-1"></i> Add Direct WM
+                             </button>
+                        </div>
+                    </div>
+                    <div class="node-connector-v"></div>
+                </div>
+            ` : `<button onclick="addWMD()" class="border-4 border-dashed border-slate-200 text-slate-400 p-6 rounded-2xl w-64 hover:border-amber-400 hover:text-amber-400 transition-all font-bold">+ Appoint WMD</button>`;
+
+            const swmRow = document.getElementById('swm-row');
+            swmRow.innerHTML = team.swms.map(swm => `
+                <div class="flex flex-col items-center">
+                    <div class="group relative bg-white border-2 border-indigo-100 p-5 rounded-2xl shadow-sm w-56 text-center hover:shadow-lg transition-all">
+                        <div class="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button onclick="promoteSWMToWMD('${swm.id}')" title="Promote to WMD" class="bg-white text-emerald-500 w-7 h-7 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-caret-up"></i></button>
+                            <button onclick="demoteSWMToWM('${swm.id}')" title="Demote to WM" class="bg-white text-rose-500 w-7 h-7 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-caret-down"></i></button>
+                            <button onclick="editSWM('${swm.id}')" class="bg-white text-slate-400 w-7 h-7 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteSWM('${swm.id}')" class="bg-white text-rose-500 w-7 h-7 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-trash text-[10px]"></i></button>
+                        </div>
+                        <div class="text-indigo-600 text-[9px] font-black uppercase mb-1">SWM Branch</div>
+                        <div class="font-bold text-slate-800">${swm.name}</div>
+                    </div>
+                    <div class="node-connector-v"></div>
+                    <div class="flex gap-6 items-start">
+                        ${swm.wms.map(wm => renderWMNode(wm, swm.id)).join('')}
+                        <button onclick="addWM('${swm.id}')" title="Add Horizontal WM" class="mt-2 w-10 h-10 border-2 border-dashed border-slate-200 rounded-full flex items-center justify-center text-slate-300 hover:border-indigo-400 hover:text-indigo-400 transition-all"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const directRow = document.getElementById('direct-wm-row');
+            if (team.directWMs && team.directWMs.length > 0) {
+                directRow.classList.remove('hidden');
+                directRow.innerHTML = `<span class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-6">Direct Reports</span><div class="flex gap-6 items-start">${team.directWMs.map(wm => renderWMNode(wm, 'direct')).join('')}</div>`;
+            } else {
+                directRow.innerHTML = `<div class="h-full flex items-center justify-center text-slate-300 text-xs italic font-medium px-8 text-center max-w-[200px]">No direct reports.</div>`;
+            }
+        }
+
+        function renderWMNode(wm, parentId) {
+            return `
+                <div class="flex flex-col items-center">
+                    <div class="group relative bg-white border border-slate-200 p-4 rounded-xl shadow-sm w-44 text-center hover:shadow-md transition-all">
+                        <div class="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button onclick="promoteWMToSWM('${wm.id}', '${parentId}')" title="Promote to SWM" class="bg-white text-emerald-500 w-6 h-6 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-caret-up text-[10px]"></i></button>
+                            <button onclick="editWM('${wm.id}')" class="bg-white text-slate-400 w-6 h-6 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-pen text-[8px]"></i></button>
+                            <button onclick="deleteWM('${wm.id}')" class="bg-white text-rose-500 w-6 h-6 rounded-lg shadow-sm border border-slate-100"><i class="fas fa-trash text-[8px]"></i></button>
+                        </div>
+                        <div class="text-slate-400 text-[8px] font-black uppercase mb-1">WM</div>
+                        <div class="text-xs font-bold text-slate-700">${wm.name}</div>
+                    </div>
+                    <div class="node-connector-v"></div>
+                    <div class="flex gap-4 items-start">
+                        ${wm.children && wm.children.length > 0 ? wm.children.map(child => renderWMNode(child, wm.id)).join('') : ''}
+                        <div class="flex flex-col gap-2 mt-2">
+                            <button onclick="addVerticalWM('${wm.id}')" title="Expand Vertically" class="w-8 h-8 border border-dashed border-indigo-300 rounded flex items-center justify-center text-indigo-400 hover:bg-indigo-50"><i class="fas fa-level-down-alt text-[10px]"></i></button>
+                            <button onclick="addHorizontalWM('${parentId}', '${wm.id}')" title="Expand Horizontally" class="w-8 h-8 border border-dashed border-slate-300 rounded flex items-center justify-center text-slate-300 hover:text-slate-600"><i class="fas fa-plus text-[10px]"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function promoteSWMToWMD(swmId) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            const swmIdx = team.swms.findIndex(s => s.id === swmId);
+            const swm = team.swms.splice(swmIdx, 1)[0];
+            universe.teams.push({
+                id: 'team-' + Date.now(),
+                name: swm.name + "'s Empire",
+                wmd: { name: swm.name },
+                directWMs: [],
+                swms: swm.wms.map(wm => ({
+                    id: 'swm-p-' + Date.now() + Math.random(),
+                    name: wm.name,
+                    wms: wm.children || []
+                }))
+            });
+            backToUniverse();
+        }
+
+        function demoteSWMToWM(swmId) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            const swmIdx = team.swms.findIndex(s => s.id === swmId);
+            const swm = team.swms.splice(swmIdx, 1)[0];
+            if (!team.directWMs) team.directWMs = [];
+            team.directWMs.push({
+                id: 'wm-d-' + Date.now(),
+                name: swm.name,
+                children: swm.wms
+            });
+            renderTeamDetail();
+        }
+
+        function promoteWMToSWM(wmId, parentId) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            let wmObj = null;
+            const extract = (list) => {
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].id === wmId) {
+                        wmObj = list.splice(i, 1)[0];
+                        return true;
+                    }
+                    if (list[i].children && extract(list[i].children)) return true;
+                }
+                return false;
+            };
+            if (parentId === 'direct') extract(team.directWMs);
+            else team.swms.forEach(s => extract(s.wms));
+            if (wmObj) {
+                team.swms.push({
+                    id: 'swm-p-' + Date.now(),
+                    name: wmObj.name,
+                    wms: wmObj.children || []
+                });
+            }
+            renderTeamDetail();
+        }
+
+        function addTeam() { universe.teams.push({ id: 'team-' + Date.now(), name: 'New Team', wmd: null, directWMs: [], swms: [] }); renderUniverse(); }
+        function editTeam(id) { const team = universe.teams.find(t => t.id === id); openModal("Edit Team", team.name, (name) => { team.name = name; renderUniverse(); }); }
+        function deleteTeam(id) { universe.teams = universe.teams.filter(t => t.id !== id); renderUniverse(); }
+        function addWMD() { const team = universe.teams.find(t => t.id === currentTeamId); team.wmd = { name: 'Director Name' }; renderTeamDetail(); }
+        function deleteWMD() { universe.teams.find(t => t.id === currentTeamId).wmd = null; renderTeamDetail(); }
+        function editWMD() { const team = universe.teams.find(t => t.id === currentTeamId); openModal("Edit WMD", team.wmd.name, (val) => { team.wmd.name = val; renderTeamDetail(); }); }
+        function addDirectWM() { const team = universe.teams.find(t => t.id === currentTeamId); if (!team.directWMs) team.directWMs = []; team.directWMs.push({ id: 'wm-' + Date.now(), name: 'Direct WM', children: [] }); renderTeamDetail(); }
+        function addSWM() { universe.teams.find(t => t.id === currentTeamId).swms.push({ id: 'swm-' + Date.now(), name: 'SWM Leader', wms: [] }); renderTeamDetail(); }
+        function editSWM(id) { const swm = universe.teams.find(t => t.id === currentTeamId).swms.find(s => s.id === id); openModal("Edit SWM", swm.name, (val) => { swm.name = val; renderTeamDetail(); }); }
+        function deleteSWM(id) { const team = universe.teams.find(t => t.id === currentTeamId); team.swms = team.swms.filter(s => s.id !== id); renderTeamDetail(); }
+        function addWM(swmId) { const swm = universe.teams.find(t => t.id === currentTeamId).swms.find(s => s.id === swmId); swm.wms.push({ id: 'wm-' + Date.now(), name: 'New WM', children: [] }); renderTeamDetail(); }
+        
+        function addHorizontalWM(parentId, siblingId) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            if (parentId === 'direct') {
+                team.directWMs.push({ id: 'wm-' + Date.now(), name: 'Direct WM', children: [] });
+            } else {
+                const swm = team.swms.find(s => s.id === parentId);
+                if (swm) swm.wms.push({ id: 'wm-' + Date.now(), name: 'New WM', children: [] });
+                else {
+                    const findAndAdd = (list) => {
+                        for (let x of list) {
+                            if (x.id === parentId) { x.children.push({ id: 'wm-' + Date.now(), name: 'New WM', children: [] }); return true; }
+                            if (x.children && findAndAdd(x.children)) return true;
+                        }
+                        return false;
+                    };
+                    team.directWMs && findAndAdd(team.directWMs);
+                    team.swms.forEach(s => findAndAdd(s.wms));
+                }
+            }
+            renderTeamDetail();
+        }
+
+        function addVerticalWM(parentId) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            const findAndAdd = (list) => {
+                for (let x of list) {
+                    if (x.id === parentId) { x.children.push({ id: 'wm-' + Date.now(), name: 'Sub WM', children: [] }); return true; }
+                    if (x.children && findAndAdd(x.children)) return true;
+                }
+                return false;
+            };
+            team.directWMs && findAndAdd(team.directWMs);
+            team.swms.forEach(s => findAndAdd(s.wms));
+            renderTeamDetail();
+        }
+
+        function editWM(id) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            let target = null;
+            const find = (list) => {
+                for (let x of list) {
+                    if (x.id === id) { target = x; return true; }
+                    if (x.children && find(x.children)) return true;
+                }
+                return false;
+            };
+            team.directWMs && find(team.directWMs);
+            team.swms.forEach(s => find(s.wms));
+            if(target) openModal("Edit WM", target.name, (val) => { target.name = val; renderTeamDetail(); });
+        }
+
+        function deleteWM(id) {
+            const team = universe.teams.find(t => t.id === currentTeamId);
+            const remove = (list) => {
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].id === id) { list.splice(i, 1); return true; }
+                    if (list[i].children && remove(list[i].children)) return true;
+                }
+                return false;
+            };
+            team.directWMs && remove(team.directWMs);
+            team.swms.forEach(s => remove(s.wms));
+            renderTeamDetail();
+        }
+
+        function openModal(title, initialValue, onSave) {
+            document.getElementById('modal-overlay').classList.replace('hidden', 'flex');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-input').value = initialValue;
+            document.getElementById('modal-save-btn').onclick = () => { onSave(document.getElementById('modal-input').value.trim()); closeModal(); };
+        }
+        function closeModal() { document.getElementById('modal-overlay').classList.replace('flex', 'hidden'); }
+        function viewTeam(id) { currentTeamId = id; document.getElementById('segment-1').classList.add('hidden'); document.getElementById('segment-2').classList.remove('hidden'); renderTeamDetail(); }
+        function backToUniverse() { document.getElementById('segment-2').classList.add('hidden'); document.getElementById('segment-1').classList.remove('hidden'); renderUniverse(); }
+        function showConfirmSave() { document.getElementById('confirm-overlay').classList.replace('hidden', 'flex'); }
+        function closeConfirmModal() { document.getElementById('confirm-overlay').classList.replace('flex', 'hidden'); }
+        async function performSave() {
+            await saveUniverseToFirebase();
+            closeConfirmModal();
+        }
+
+        // Make functions available to inline onclick="..." handlers.
+        window.addTeam = addTeam;
+        window.editTeam = editTeam;
+        window.deleteTeam = deleteTeam;
+        window.addWMD = addWMD;
+        window.deleteWMD = deleteWMD;
+        window.editWMD = editWMD;
+        window.addDirectWM = addDirectWM;
+        window.addSWM = addSWM;
+        window.editSWM = editSWM;
+        window.deleteSWM = deleteSWM;
+        window.addWM = addWM;
+        window.addHorizontalWM = addHorizontalWM;
+        window.addVerticalWM = addVerticalWM;
+        window.editWM = editWM;
+        window.deleteWM = deleteWM;
+        window.promoteSWMToWMD = promoteSWMToWMD;
+        window.demoteSWMToWM = demoteSWMToWM;
+        window.promoteWMToSWM = promoteWMToSWM;
+        window.closeModal = closeModal;
+        window.viewTeam = viewTeam;
+        window.backToUniverse = backToUniverse;
+        window.showConfirmSave = showConfirmSave;
+        window.closeConfirmModal = closeConfirmModal;
+        window.performSave = performSave;
+
+        loadUniverseFromFirebase();
+    </script>
+</body>
+</html>
